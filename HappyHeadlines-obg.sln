@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfanityService.Api", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArticleService.Contracts", "src\ArticleService\ArticleService.Contracts\ArticleService.Contracts.csproj", "{9030B2B0-A325-44AC-BA42-20E4B050AE93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfanityService.Contracts", "src\ProfanityService\ProfanityService.Contracts\ProfanityService.Contracts.csproj", "{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{9030B2B0-A325-44AC-BA42-20E4B050AE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9030B2B0-A325-44AC-BA42-20E4B050AE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9030B2B0-A325-44AC-BA42-20E4B050AE93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +101,7 @@ Global
 		{5227810C-953C-40F3-AC3B-093CE2B6C3A9} = {A9D08253-6C59-4CCF-9DD0-95C280B1F90B}
 		{22C671CA-7AA0-47AB-9EFA-A86CD1A25DCF} = {A9D08253-6C59-4CCF-9DD0-95C280B1F90B}
 		{9030B2B0-A325-44AC-BA42-20E4B050AE93} = {FCBA6A9B-C6BE-4851-B881-AD9E4C7B2DCC}
+		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4} = {A9D08253-6C59-4CCF-9DD0-95C280B1F90B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C38E3795-5E94-4613-A9B9-C0FC4D475A63}

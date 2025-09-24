@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProfanityService.Application.Db;
 using ProfanityService.Application.Interface;
+using ProfanityService.Contracts.Requests;
+using ProfanityService.Contracts.Responses;
 using ProfanityService.Domain.Entity;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,10 +27,16 @@ namespace ProfanityService.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> FilterProfanities([FromBody] Profanity profanity, CancellationToken ct)
+        public async Task<IActionResult> FilterProfanities([FromBody] CheckProfanityRequest req, CancellationToken ct)
         {
+            var profanity = new Profanity
+            {
+                Word = req.Text,
+            };
             var checkProfanity = await _repo.CheckForProfanities(profanity, ct);
-            return Ok(checkProfanity);
+
+            var response = new ProfanityResponse { FilteredText = checkProfanity.Item1, IsContentClean = !checkProfanity.Item2 };
+            return Ok(response);
         }
 
     }

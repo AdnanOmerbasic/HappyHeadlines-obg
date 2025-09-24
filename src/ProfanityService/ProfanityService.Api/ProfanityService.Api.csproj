@@ -12,10 +12,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.8.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ProfanityService.Application\ProfanityService.Application.csproj" />
+    <ProjectReference Include="..\ProfanityService.Contracts\ProfanityService.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
