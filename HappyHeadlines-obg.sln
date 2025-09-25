@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArticleService.Contracts", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfanityService.Contracts", "src\ProfanityService\ProfanityService.Contracts\ProfanityService.Contracts.csproj", "{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommentService.Contracts", "src\CommentService\CommentService.Contracts\CommentService.Contracts.csproj", "{8A17B6F9-0416-4435-B096-9EA2037F2A77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A17B6F9-0416-4435-B096-9EA2037F2A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A17B6F9-0416-4435-B096-9EA2037F2A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A17B6F9-0416-4435-B096-9EA2037F2A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A17B6F9-0416-4435-B096-9EA2037F2A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{22C671CA-7AA0-47AB-9EFA-A86CD1A25DCF} = {A9D08253-6C59-4CCF-9DD0-95C280B1F90B}
 		{9030B2B0-A325-44AC-BA42-20E4B050AE93} = {FCBA6A9B-C6BE-4851-B881-AD9E4C7B2DCC}
 		{1E2EBA98-55D4-4E68-827D-C43A57E47DD4} = {A9D08253-6C59-4CCF-9DD0-95C280B1F90B}
+		{8A17B6F9-0416-4435-B096-9EA2037F2A77} = {1D6CCAAA-73FA-4E22-9991-EF00638C849F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C38E3795-5E94-4613-A9B9-C0FC4D475A63}

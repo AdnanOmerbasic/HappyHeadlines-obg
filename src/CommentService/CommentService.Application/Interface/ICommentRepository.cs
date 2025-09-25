@@ -10,8 +10,9 @@ namespace CommentService.Application.Interface
     public interface ICommentRepository
     {
         Task<IEnumerable<Comment>> GetAllAsync(Continent continent, int articleId, CancellationToken ct);
+        Task<Comment?> GetCommentById(int id, CancellationToken ct);
         Task<Comment> CreateCommentAsync(Comment comment, CancellationToken ct);
         Task<Comment?> UpdateCommentAsync(Comment comment, CancellationToken ct);
-        Task<Comment?> DeleteCommentAsync(int id, CancellationToken ct);
+        Task<Comment?> DeleteCommentAsync(Continent continent, int articleId, int id, CancellationToken ct);
     }
 }

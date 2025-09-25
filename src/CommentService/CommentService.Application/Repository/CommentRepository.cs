@@ -27,7 +27,7 @@ namespace CommentService.Application.Repository
 
         }
 
-        public async Task<Comment?> DeleteCommentAsync(int id, CancellationToken ct)
+        public async Task<Comment?> DeleteCommentAsync(Continent continent, int articleId, int id, CancellationToken ct)
         {
             var existingComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == id, ct);
             if (existingComment == null)
@@ -42,6 +42,17 @@ namespace CommentService.Application.Repository
         public async Task<IEnumerable<Comment>> GetAllAsync(Continent continent, int articleId, CancellationToken ct)
         {
             return await _dbContext.Comments.AsNoTracking().Where(c => c.Continent == continent && c.ArticleId == articleId).OrderBy(c => c.CreatedAt).ToListAsync(ct);
+        }
+
+        public async Task<Comment?> GetCommentById(int id, CancellationToken ct)
+        {
+            var existingComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == id, ct);
+
+            if (existingComment == null)
+            {
+                return null;
+            }
+            return existingComment;
         }
 
         public async Task<Comment?> UpdateCommentAsync(Comment comment, CancellationToken ct)
