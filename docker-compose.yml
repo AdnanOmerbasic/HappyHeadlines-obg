@@ -1,0 +1,193 @@
+name: HappyHeadlinesDev
+
+x-mssql: &mssql
+  image: mcr.microsoft.com/mssql/server:2022-latest
+  environment:
+   SA_PASSWORD: "Passw0rd!"
+   ACCEPT_EULA: "Y"
+   MSSQL_PID: Developer
+  healthcheck:
+   test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Passw0rd!' -Q 'SELECT 1' -C || exit 1"]
+   interval: 10s
+   timeout: 5s
+   retries: 3
+
+services:
+  eu-db:
+   <<: *mssql
+   ports:
+    - "1433:1433"
+   volumes:
+    - "eudb-data:/var/opt/mssql"
+
+  na-db:
+   <<: *mssql
+   ports:
+    - "1434:1433"
+   volumes:
+    - "nadb-data:/var/opt/mssql"
+
+  as-db:
+   <<: *mssql
+   ports:
+    - "1435:1433"
+   volumes:
+    - "asdb-data:/var/opt/mssql"
+
+  sa-db:
+   <<: *mssql
+   ports:
+    - "1436:1433"
+   volumes:
+    - "sadb-data:/var/opt/mssql"
+
+  oc-db:
+   <<: *mssql
+   ports:
+    - "1437:1433"
+   volumes:
+    - "ocdb-data:/var/opt/mssql"
+
+  af-db:
+   <<: *mssql
+   ports:
+    - "1438:1433"
+   volumes:
+    - "afdb-data:/var/opt/mssql"
+
+  an-db:
+   <<: *mssql
+   ports:
+    - "1439:1433"
+   volumes:
+    - "andb-data:/var/opt/mssql"
+
+  gl-db:
+   <<: *mssql
+   ports:
+    - "1440:1433"
+   volumes:
+    - "gldb-data:/var/opt/mssql"
+
+  article-service:
+   build:
+    context: .
+    dockerfile: src/ArticleService/ArticleService.Api/Dockerfile
+    cache_from:
+     - article-service:latest
+   deploy:
+    replicas: 3
+    restart_policy:
+     condition: on-failure
+     max_attempts: 3
+     window: 2m
+   environment:
+    ConnectionString__EU: "Server=eu-db;Database=EU_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__NA: "Server=na-db;Database=NA_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__AS: "Server=as-db;Database=AS_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__SA: "Server=sa-db;Database=SA_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__OC: "Server=oc-db;Database=OC_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__AF: "Server=af-db;Database=AF_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__AN: "Server=an-db;Database=AN_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionString__GL: "Server=gl-db;Database=GL_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+   ports:
+    - "80"
+   develop:
+    watch:
+    - path: src/ArticleService
+      target: src/ArticleService
+      action: sync
+   depends_on:
+     eu-db: 
+      condition: service_healthy 
+     na-db:
+      condition: service_healthy
+     as-db:
+      condition: service_healthy
+     sa-db:
+      condition: service_healthy
+     oc-db:
+      condition: service_healthy
+     af-db:
+      condition: service_healthy
+     an-db:
+      condition: service_healthy
+     gl-db:
+      condition: service_healthy
+
+  comment-db:
+   <<: *mssql
+   ports:
+    - "1441:1433"
+   volumes:
+    - "commentdb-data:/var/opt/mssql"
+
+  comment-service:
+   build: 
+    context: .
+    dockerfile: src/CommentService/CommentService.Api/Dockerfile
+    cache_from:
+     - comment-service:latest
+   environment:
+    ConnectionStrings__CommentDb: "Server=comment-db;Database=CommentDb;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+    Services__ProfanityApi: "http://profanity-service:80"
+   develop:
+    watch:
+     - path: src/CommentService
+       target: src/CommentService
+       action: sync 
+   ports:
+    - "8080:80"
+   depends_on:
+    comment-db:
+     condition: service_healthy
+   
+  profanity-db:
+   <<: *mssql
+   ports:
+    - "1442:1433"
+   volumes:
+    - "profanitydb-data:/var/opt/mssql"
+
+  profanity-service:
+   build:
+    context: .
+    dockerfile: src/ProfanityService/ProfanityService.Api/Dockerfile
+    cache_from:
+     - profanity-service:latest
+   environment:
+    ConnectionStrings__ProfanityDb: "Server=profanity-db;Database=ProfanityDb;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+   develop:
+    watch:
+     - path: src/ProfanityService
+       target: src/ProfanityService
+       action: sync
+   ports:
+    - "8081:80"
+   depends_on:
+    profanity-db:
+     condition: service_healthy
+
+volumes:
+    eudb-data: {}
+    nadb-data: {}
+    asdb-data: {}
+    sadb-data: {}
+    ocdb-data: {}
+    afdb-data: {}
+    andb-data: {}
+    gldb-data: {}
+    commentdb-data: {}
+    profanitydb-data: {}
+
+   
+
+
+  
+     
