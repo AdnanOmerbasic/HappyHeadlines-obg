@@ -13,6 +13,19 @@ x-mssql: &mssql
    retries: 3
 
 services:
+  seq:
+   image: datalust/seq
+   ports:
+    - "5341:5341"
+    - "5342:80"
+   volumes:
+    - "rps_seq_data:/data"
+   environment:
+    ACCEPT_EULA: "Y"
+    SEQ_FIRSTRUN_ADMINPASSWORD: "Passw0rd!"
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+
   eu-db:
    <<: *mssql
    ports:
@@ -213,6 +226,7 @@ volumes:
     gldb-data: {}
     commentdb-data: {}
     profanitydb-data: {}
+    rps_seq_data: {}
     draftdb-data: {}
 
    

@@ -21,9 +21,9 @@ namespace DraftService.Application.Repository
 
         public async Task<Draft> CreateDraftAsync(Draft draft, CancellationToken ct)
         {
-            _dbContext.Add(draft);
-            await _dbContext.SaveChangesAsync(ct);
-            return draft;
+                _dbContext.Add(draft);
+                await _dbContext.SaveChangesAsync(ct);
+                return draft;
         }
 
         public async Task<Draft?> DeleteDraftAsync(int id, CancellationToken ct)
