@@ -25,6 +25,8 @@ services:
     SEQ_FIRSTRUN_ADMINPASSWORD: "Passw0rd!"
     ASPNETCORE_ENVIRONMENT: "Development"
     ASPNETCORE_URLS: "http://+:80"
+   networks:
+    - elastic-jaeger
 
 
   elasticsearch:

@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SharedLib\Logging.Shared\Monitoring.Shared.csproj" />
-    <ProjectReference Include="..\DraftService.Application\DraftService.Application.csproj" />
+	<ProjectReference Include="..\..\SharedLib\Monitoring.Shared\Monitoring.Shared.csproj" />
+	<ProjectReference Include="..\DraftService.Application\DraftService.Application.csproj" />
     <ProjectReference Include="..\DraftService.Contracts\DraftService.Contracts.csproj" />
   </ItemGroup>
 
