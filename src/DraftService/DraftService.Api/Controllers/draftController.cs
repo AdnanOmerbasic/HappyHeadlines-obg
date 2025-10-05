@@ -3,7 +3,7 @@ using DraftService.Application.Interfaces;
 using DraftService.Contracts.Requests;
 using DraftService.Contracts.Responses;
 using DraftService.Domain.Entity;
-using Logging.Shared.Logging;
+using Monitoring.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,7 +25,7 @@ namespace DraftService.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken ct)
         {
-            LoggingService.Log.Information("{Event} Started retrieving all drafts", LogEvents.RetrivedAllDrafts);
+            Serilog.Log.Information("{Event} Started retrieving all drafts", LogEvents.RetrivedAllDrafts);
             var drafts = await _repo.GetAllDraftAsync(ct);
             var response = new DraftsResponse
             {
@@ -41,7 +41,7 @@ namespace DraftService.Api.Controllers
                 })
             };
 
-            LoggingService.Log.Information("{Event} Successfully retrieved all drafts", LogEvents.RetrivedAllDrafts);
+            Serilog.Log.Information("{Event} Successfully retrieved all drafts", LogEvents.RetrivedAllDrafts);
             return Ok(response);
         }
 
@@ -50,11 +50,11 @@ namespace DraftService.Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get([FromRoute] int id, CancellationToken ct)
         {
-            LoggingService.Log.Information("{Event} Started retrieving draft by id", LogEvents.RetrivedDraftById);
+            Serilog.Log.Information("{Event} Started retrieving draft by id", LogEvents.RetrivedDraftById);
             var draft = await _repo.GetDraftByIdAsync(id, ct);  
             if (draft == null)
             {
-                LoggingService.Log.Warning("{Event} Couldnt retrieve any draft with id: {DraftId}", LogEvents.FailedToRetriveDraftById, id);
+                Serilog.Log.Warning("{Event} Couldnt retrieve any draft with id: {DraftId}", LogEvents.FailedToRetriveDraftById, id);
                 return NotFound();
             }
             var response = new DraftResponse
@@ -68,7 +68,7 @@ namespace DraftService.Api.Controllers
                 UpdatedAt = draft.UpdatedAt
             };
 
-            LoggingService.Log.Information("{Event} Retrived draft by id: {DraftId}", LogEvents.RetrivedDraftById, id);
+            Serilog.Log.Information("{Event} Retrived draft by id: {DraftId}", LogEvents.RetrivedDraftById, id);
             return Ok(response);
         }
 
@@ -76,7 +76,7 @@ namespace DraftService.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateDraftRequest req, CancellationToken ct)
         {
-            LoggingService.Log.Information("{Event} Started to create draft", LogEvents.CreatedDraft);
+            Serilog.Log.Information("{Event} Started to create draft", LogEvents.CreatedDraft);
             var draft = new Draft
             {
                 Title = req.Title,
@@ -88,7 +88,7 @@ namespace DraftService.Api.Controllers
             };
 
             var createdDraft = await _repo.CreateDraftAsync(draft, ct);
-            LoggingService.Log.Information("{Event} Successfully created draft", LogEvents.CreatedDraft);
+            Serilog.Log.Information("{Event} Successfully created draft", LogEvents.CreatedDraft);
             return CreatedAtAction(nameof(Get), new { id = createdDraft.Id }, createdDraft);
         }
 
@@ -97,7 +97,7 @@ namespace DraftService.Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateDraftRequest req, CancellationToken ct)
         {
-            LoggingService.Log.Information("{Event} Started to update draft", LogEvents.UpdatedDraft);
+            Serilog.Log.Information("{Event} Started to update draft", LogEvents.UpdatedDraft);
             var draft = new Draft
             {
                 Id = id,
@@ -111,7 +111,7 @@ namespace DraftService.Api.Controllers
 
             if (updatedDraft == null)
             {
-                LoggingService.Log.Warning("{Event} Couldnt update any draft with id: {DraftId}", LogEvents.FailedToUpdateDraft, id);
+                Serilog.Log.Warning("{Event} Couldnt update any draft with id: {DraftId}", LogEvents.FailedToUpdateDraft, id);
                 return NotFound();
             }
 
@@ -125,7 +125,7 @@ namespace DraftService.Api.Controllers
                 UpdatedAt = updatedDraft.UpdatedAt
             };
 
-            LoggingService.Log.Information("{Event} Successfully updated draft with id: {DraftId}", LogEvents.UpdatedDraft, id);
+            Serilog.Log.Information("{Event} Successfully updated draft with id: {DraftId}", LogEvents.UpdatedDraft, id);
             return Ok(response);
         }
 
@@ -134,15 +134,15 @@ namespace DraftService.Api.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct)
         {
-            LoggingService.Log.Information("{Event} Started to delete draft", LogEvents.DeletedDraft);
+            Serilog.Log.Information("{Event} Started to delete draft", LogEvents.DeletedDraft);
             var deletedDraft = await _repo.DeleteDraftAsync(id, ct);
             if (deletedDraft == null)
             {
-                LoggingService.Log.Warning("{Event} Couldnt delete any draft with id: {DraftId}", LogEvents.FailedToDeleteDraft, id);
+                Serilog.Log.Warning("{Event} Couldnt delete any draft with id: {DraftId}", LogEvents.FailedToDeleteDraft, id);
                 return NotFound();
             }
 
-            LoggingService.Log.Information("{Event} Successfully deleted draft with id: {DraftId}", LogEvents.DeletedDraft, id);
+            Serilog.Log.Information("{Event} Successfully deleted draft with id: {DraftId}", LogEvents.DeletedDraft, id);
             return NoContent();
         }
     }

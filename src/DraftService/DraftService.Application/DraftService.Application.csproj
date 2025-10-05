@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SharedLib\Logging.Shared\Logging.Shared.csproj" />
+    <ProjectReference Include="..\..\SharedLib\Logging.Shared\Monitoring.Shared.csproj" />
     <ProjectReference Include="..\DraftService.Domain\DraftService.Domain.csproj" />
   </ItemGroup>
 

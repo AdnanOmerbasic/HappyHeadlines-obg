@@ -26,6 +26,43 @@ services:
     ASPNETCORE_ENVIRONMENT: "Development"
     ASPNETCORE_URLS: "http://+:80"
 
+
+  elasticsearch:
+   image: elasticsearch:8.19.4
+   restart: on-failure
+   networks:
+    - elastic-jaeger
+   environment:
+     - cluster.name=jaeger-cluster
+     - discovery.type=single-node
+     - xpack.security.enabled=false
+     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+   ports:
+     - "9200:9200"
+   volumes:
+     - es-data:/usr/share/elasticsearch/data
+   healthcheck:
+    test: ["CMD-SHELL", "curl -f http://localhost/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 60s
+
+  jaeger:
+   image: jaegertracing/all-in-one:latest
+   ports:
+    - "16686:16686"
+   restart: on-failure
+   environment:
+    SPAN_STORAGE_TYPE: "elasticsearch"
+    ES_SERVER_URLS: "http://elasticsearch:9200"
+   networks:
+    - elastic-jaeger
+   depends_on:
+    elasticsearch:
+     condition: service_healthy
+
+
   eu-db:
    <<: *mssql
    ports:
@@ -191,6 +228,8 @@ services:
    <<: *mssql
    ports:
     - "1443:1433"
+   networks:
+    - elastic-jaeger
    volumes:
     - "draftdb-data:/var/opt/mssql"
 
@@ -211,6 +250,8 @@ services:
       action: sync
    ports:
     - "8082:80"
+   networks:
+    - elastic-jaeger
    depends_on:
      draft-db:
       condition: service_healthy
@@ -228,6 +269,10 @@ volumes:
     profanitydb-data: {}
     rps_seq_data: {}
     draftdb-data: {}
+    es-data: {}
+
+networks:
+  elastic-jaeger: {}
 
    
 

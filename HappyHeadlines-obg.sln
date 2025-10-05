@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DraftService.Contracts", "s
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedLib", "SharedLib", "{E4766D83-10BE-444B-AB6E-9F9F03ED22F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Shared", "src\SharedLib\Logging.Shared\Logging.Shared.csproj", "{34C41010-4F6A-4C87-AFBB-8F5DB398D9A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitoring.Shared", "src\SharedLib\Logging.Shared\Monitoring.Shared.csproj", "{34C41010-4F6A-4C87-AFBB-8F5DB398D9A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
