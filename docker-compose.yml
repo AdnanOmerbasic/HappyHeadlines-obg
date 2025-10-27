@@ -172,6 +172,7 @@ services:
     - "gldb-data:/var/opt/mssql"
 
   article-service:
+   image: ghcr.io/adnanomerbasic/article-service:latest
    build:
     context: .
     dockerfile: src/ArticleService/ArticleService.Api/Dockerfile
@@ -236,6 +237,7 @@ services:
     - "commentdb-data:/var/opt/mssql"
 
   comment-service:
+   image: ghcr.io/adnanomerbasic/comment-service:latest
    build: 
     context: .
     dockerfile: src/CommentService/CommentService.Api/Dockerfile
@@ -270,6 +272,7 @@ services:
     - "profanitydb-data:/var/opt/mssql"
 
   profanity-service:
+   image: ghcr.io/adnanomerbasic/profanity-service:latest
    build:
     context: .
     dockerfile: src/ProfanityService/ProfanityService.Api/Dockerfile
@@ -300,6 +303,7 @@ services:
     - "draftdb-data:/var/opt/mssql"
 
   draft-service:
+   image: ghcr.io/adnanomerbasic/draft-service:latest
    build:
     context: .
     dockerfile: src/DraftService/DraftService.Api/Dockerfile
@@ -323,6 +327,7 @@ services:
       condition: service_healthy
    
   publisher-service:
+   image: ghcr.io/adnanomerbasic/publisher-service:latest
    build:
     context: .
     dockerfile: src/PublisherService/PublisherService.Api/Dockerfile
@@ -337,6 +342,7 @@ services:
     - elastic-jaeger
 
   newsletter-service:
+   image: ghcr.io/adnanomerbasic/newsletter-service:latest
    build:
     context: .
     dockerfile: src/NewsletterService/NewsletterService.Api/Dockerfile
