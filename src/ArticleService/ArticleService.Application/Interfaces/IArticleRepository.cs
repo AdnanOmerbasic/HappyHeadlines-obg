@@ -14,5 +14,6 @@ namespace ArticleService.Application.Interfaces
         Task<Article?> UpdateArticleAsync(Article article, CancellationToken ct);
         Task<Article?> DeleteArticleAsync(int id, Continent continent, CancellationToken ct);
         Task<Article?> GetArticleByIdAsync(int id, Continent continent, CancellationToken ct);
+        Task<IEnumerable<Article>> GetRecentArticles(int days, Continent continent, CancellationToken ct);
     }
 }

@@ -28,6 +28,36 @@ services:
    networks:
     - elastic-jaeger
 
+  prometheus:
+   image: prom/prometheus:latest
+   ports:
+    - "9090:9090"
+   volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml
+   networks:
+    - elastic-jaeger
+   depends_on:
+    article-service:
+     condition: service_started
+
+  rabbitmq:
+   image: rabbitmq:management
+   ports:
+    - "5672:5672"
+    - "15672:15672"
+   environment:
+    RABBITMQ_DEFAULT_USER: "admin"
+    RABBITMQ_DEFAULT_PASS: "happyheadlines"
+   volumes:
+    - rps_rmq_data:/var/lib/rabbitmq
+   networks:
+    - elastic-jaeger
+   healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+    interval: 10s
+    timeout: 10s
+    retries: 10
+    start_period: 60s
 
   elasticsearch:
    image: elasticsearch:8.19.4
@@ -64,6 +94,22 @@ services:
     elasticsearch:
      condition: service_healthy
 
+  redis:
+   image: redis:latest
+   ports:
+    - "6379:6379"
+   command: ["redis-server", "--appendonly", "yes"]
+   healthcheck:
+    test: ["CMD-SHELL", "redis-cli", "ping"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+   restart: 
+    always
+   volumes:
+    - redis:/data
+   networks:
+    - elastic-jaeger
 
   eu-db:
    <<: *mssql
@@ -71,11 +117,15 @@ services:
     - "1433:1433"
    volumes:
     - "eudb-data:/var/opt/mssql"
+   networks:
+    - elastic-jaeger
 
   na-db:
    <<: *mssql
    ports:
     - "1434:1433"
+   networks:
+    - elastic-jaeger
    volumes:
     - "nadb-data:/var/opt/mssql"
 
@@ -142,6 +192,7 @@ services:
     ConnectionString__AF: "Server=af-db;Database=AF_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
     ConnectionString__AN: "Server=an-db;Database=AN_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
     ConnectionString__GL: "Server=gl-db;Database=GL_Db;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    ConnectionStrings__REDIS: "redis:6379"
     ASPNETCORE_ENVIRONMENT: "Development"
     ASPNETCORE_URLS: "http://+:80"
    ports:
@@ -151,9 +202,15 @@ services:
     - path: src/ArticleService
       target: src/ArticleService
       action: sync
+   networks:
+    - elastic-jaeger
    depends_on:
      eu-db: 
       condition: service_healthy 
+     rabbitmq:
+      condition: service_healthy   
+     redis:
+      condition: service_healthy
      na-db:
       condition: service_healthy
      as-db:
@@ -173,6 +230,8 @@ services:
    <<: *mssql
    ports:
     - "1441:1433"
+   networks:
+    - elastic-jaeger
    volumes:
     - "commentdb-data:/var/opt/mssql"
 
@@ -187,15 +246,20 @@ services:
     ASPNETCORE_ENVIRONMENT: "Development"
     ASPNETCORE_URLS: "http://+:80"
     Services__ProfanityApi: "http://profanity-service:80"
+    ConnectionStrings__REDIS: "redis:6379"
    develop:
     watch:
      - path: src/CommentService
        target: src/CommentService
        action: sync 
+   networks:
+    - elastic-jaeger
    ports:
     - "8080:80"
    depends_on:
     comment-db:
+     condition: service_healthy
+    redis:
      condition: service_healthy
    
   profanity-db:
@@ -257,6 +321,34 @@ services:
    depends_on:
      draft-db:
       condition: service_healthy
+   
+  publisher-service:
+   build:
+    context: .
+    dockerfile: src/PublisherService/PublisherService.Api/Dockerfile
+    cache_from:
+     - publisher-service:latest
+   environment:
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+   ports:
+    - "8083:80" 
+   networks:
+    - elastic-jaeger
+
+  newsletter-service:
+   build:
+    context: .
+    dockerfile: src/NewsletterService/NewsletterService.Api/Dockerfile
+    cache_from:
+     - newsletter-service:latest
+   environment:
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+   ports:
+    - "8084:80"
+   networks:
+    - elastic-jaeger
 
 volumes:
     eudb-data: {}
@@ -272,6 +364,9 @@ volumes:
     rps_seq_data: {}
     draftdb-data: {}
     es-data: {}
+    rps_rmq_data: {}
+    redis: {}
+    localprom: {}
 
 networks:
   elastic-jaeger: {}

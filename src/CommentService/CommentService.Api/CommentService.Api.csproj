@@ -17,10 +17,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Polly" Version="8.6.3" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.8.6" />
+    <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\SharedLib\Redis.Shared\Redis.Shared.csproj" />
     <ProjectReference Include="..\CommentService.Application\CommentService.Application.csproj" />
     <ProjectReference Include="..\CommentService.Contracts\CommentService.Contracts.csproj" />
   </ItemGroup>

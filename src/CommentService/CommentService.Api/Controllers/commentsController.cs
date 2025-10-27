@@ -5,6 +5,9 @@ using CommentService.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Polly;
 using Polly.CircuitBreaker;
+using Prometheus;
+using Redis.Shared.Interfaces;
+using StackExchange.Redis;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,14 +17,21 @@ namespace CommentService.Api.Controllers
     [ApiController]
     public class commentsController : ControllerBase
     {
-        // GET: api/<commentsController>
         private readonly ICommentRepository _repo;
         private readonly IHttpClientFactory _httpClientFactory; 
+        private readonly IRedisCache _cache;
+        private readonly IDatabase _redisDb;
 
-        public commentsController(ICommentRepository repo, IHttpClientFactory httpClientFactory)
+        private static readonly Counter CommentCacheHits = Metrics.CreateCounter("comment_cache_hits_total", "Total number of comment cache hits");
+        private static readonly Counter CommentCacheMisses = Metrics.CreateCounter("comment_cache_misses_total", "Total number of comment cache misses");
+
+
+        public commentsController(ICommentRepository repo, IHttpClientFactory httpClientFactory, IRedisCache cache, IConnectionMultiplexer multiplexer)
         {
             _repo = repo;
             _httpClientFactory = httpClientFactory;
+            _cache = cache;
+            _redisDb = multiplexer.GetDatabase();
         }
 
         private static readonly AsyncCircuitBreakerPolicy<HttpResponseMessage> _circuitBreakerPolicy =
@@ -32,6 +42,14 @@ namespace CommentService.Api.Controllers
         [Route("{continent}/{articleId}")]
         public async Task<IActionResult> GetAll([FromRoute] Continent continent, [FromRoute] int articleId, CancellationToken ct)
         {
+            var cached = await _cache.GetDataAsync<CommentsResponse>($"comments:{continent}:{articleId}");
+            if (cached != null)
+            {
+                CommentCacheHits.Inc();
+
+                await _redisDb.SortedSetAddAsync("comments:lru", $"{continent}:{articleId}", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                return Ok(cached);
+            }
             var comments = await _repo.GetAllAsync(continent, articleId, ct);
             var response = new CommentsResponse
             {
@@ -46,6 +64,23 @@ namespace CommentService.Api.Controllers
 
                 })
             };
+
+            await _cache.SetDataAsync($"comments:{continent}:{articleId}", response);
+            CommentCacheMisses.Inc();
+
+            await _redisDb.SortedSetAddAsync("comments:lru", $"{continent}:{articleId}", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            var count = await _redisDb.SortedSetLengthAsync("comments:lru");
+
+            if (count > 3)
+            {
+                var removeArticles = await _redisDb.SortedSetRangeByRankAsync("comments:lru", 0, count - 4);
+                foreach (var item in removeArticles)
+                {
+                    var itemStr = item.ToString();
+                    await _cache.RemoveAsync($"comments:{itemStr}");
+                    await _redisDb.SortedSetRemoveAsync("comments:lru", item);
+                }
+            }
             return Ok(response);
         }
 
@@ -96,6 +131,8 @@ namespace CommentService.Api.Controllers
 
                 var createdFilteredComment = await _repo.CreateCommentAsync(filteredComment, ct);
 
+                await _cache.RemoveAsync($"comments:{continent}:{articleId}");
+
                 return CreatedAtAction(nameof(Get), new { id = filteredComment.Id, continent = filteredComment.Continent, articleId = filteredComment.ArticleId }, createdFilteredComment);
             }
             catch
@@ -110,6 +147,8 @@ namespace CommentService.Api.Controllers
                 ArticleId = articleId,
             };
             var createdComment = await _repo.CreateCommentAsync(comment, ct);
+
+            await _cache.RemoveAsync($"comments:{continent}:{articleId}");
 
             return CreatedAtAction(nameof(Get), new { id = comment.Id, continent = comment.Continent, articleId = comment.ArticleId }, createdComment);
         }
@@ -134,6 +173,9 @@ namespace CommentService.Api.Controllers
                 return NotFound();
             }
 
+            await _cache.RemoveAsync($"comments:{continent}:{articleId}");
+            await _redisDb.SortedSetRemoveAsync("comments:lru", $"{continent}:{articleId}");
+
             var response = new CommentResponse
             {
                 Id = updated.Id,
@@ -156,6 +198,10 @@ namespace CommentService.Api.Controllers
             {
                 return NotFound();
             }
+
+            await _cache.RemoveAsync($"comments:{continent}:{articleId}");
+            await _redisDb.SortedSetRemoveAsync("comments:lru", $"{continent}:{articleId}");
+
             return Ok(comment);
         }
     }

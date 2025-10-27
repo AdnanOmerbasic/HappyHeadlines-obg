@@ -3,6 +3,8 @@ using ArticleService.Contracts.Requests;
 using ArticleService.Contracts.Responses;
 using ArticleService.Domain.Entity;
 using Microsoft.AspNetCore.Mvc;
+using Prometheus;
+using Redis.Shared.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,10 +14,15 @@ namespace ArticleService.Api.Controllers
     [ApiController]
     public class ArticlesController : ControllerBase
     {
+        private readonly IRedisCache _cache;
         private readonly IArticleRepository _repo;
+        
+        private static readonly Counter ArticleCacheHits = Metrics.CreateCounter("article_cache_hits_total", "Total number of article cache hits");
+        private static readonly Counter ArticleCacheMisses = Metrics.CreateCounter("article_cache_misses_total", "Total number of article cache misses");
 
-        public ArticlesController(IArticleRepository repo)
+        public ArticlesController(IArticleRepository repo, IRedisCache cache)
         {
+            _cache = cache;
             _repo = repo;
         }
 
@@ -30,6 +37,9 @@ namespace ArticleService.Api.Controllers
                 Continent = req.Continent
             };
             var createdArticle = await _repo.CreateArticleAsync(article, ct);
+
+            await _cache.RemoveAsync($"article:{createdArticle.Continent}:{createdArticle.Id}");
+
             return CreatedAtAction(nameof(Get), new { id = article.Id, continent = article.Continent }, createdArticle);
         }
 
@@ -60,6 +70,23 @@ namespace ArticleService.Api.Controllers
         [Route("{continent}/{id}")]
         public async Task<IActionResult> Get([FromRoute] int id, [FromRoute] Continent continent, CancellationToken ct)
         {
+            var cached = await _cache.GetDataAsync<Article>($"article:{continent}:{id}");
+
+            if (cached != null)
+            {
+                ArticleCacheHits.Inc();
+                return Ok(new ArticleResponse
+                {
+                    Id = cached.Id,
+                    Title = cached.Title,
+                    AuthorName = cached.AuthorName,
+                    Content = cached.Content,
+                    Continent = cached.Continent,
+                    CreatedAt = cached.CreatedAt,
+                    UpdatedAt = cached?.UpdatedAt,
+                });
+            }
+
             var article = await _repo.GetArticleByIdAsync(id, continent, ct);
             if (article == null)
             {
@@ -76,6 +103,7 @@ namespace ArticleService.Api.Controllers
                 CreatedAt = article.CreatedAt,
                 UpdatedAt = article?.UpdatedAt,
             };
+            ArticleCacheMisses.Inc();
             return Ok(response);
         }
 
@@ -100,6 +128,8 @@ namespace ArticleService.Api.Controllers
                 return NotFound();
             }
 
+            await _cache.RemoveAsync($"article:{updated.Continent}:{updated.Id}");
+
             var response = new ArticleResponse
             {
                 Id = updated.Id,
@@ -123,6 +153,9 @@ namespace ArticleService.Api.Controllers
             {
                 return NotFound();
             }
+
+            await _cache.RemoveAsync($"article:{continent}:{id}");
+
             return Ok(article);
         }
     }

@@ -54,6 +54,13 @@ namespace ArticleService.Application.Repository
             return existingArticle;
         }
 
+        public async Task<IEnumerable<Article>> GetRecentArticles(int days, Continent continent, CancellationToken ct)
+        {
+            await using var db = _dbContextFactory.CreateDbContext(continent);
+            var dateThreshold = DateTime.UtcNow.AddDays(-days);
+            return await db.Articles.AsNoTracking().Where(a => a.CreatedAt >= dateThreshold).ToListAsync(ct);
+        }
+
         public async Task<Article?> UpdateArticleAsync(Article article, CancellationToken ct)
         {
             await using var db = _dbContextFactory.CreateDbContext(article.Continent);

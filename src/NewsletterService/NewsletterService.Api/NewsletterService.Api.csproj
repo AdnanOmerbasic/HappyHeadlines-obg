@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>d9474c73-099c-453c-9082-5e3a0652fd4a</UserSecretsId>
+    <UserSecretsId>72fc4fe0-932f-4580-98af-e29f7b7033cc</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..</DockerfileContext>
   </PropertyGroup>
@@ -13,22 +13,13 @@
     <PackageReference Include="EasyNetQ" Version="7.8.0" />
     <PackageReference Include="EasyNetQ.Serialization.SystemTextJson" Version="7.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.8.3" />
-    <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.8.10" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\SharedLib\Events\Events.csproj" />
     <ProjectReference Include="..\..\SharedLib\Monitoring.Shared\Monitoring.Shared.csproj" />
-    <ProjectReference Include="..\..\SharedLib\Redis.Shared\Redis.Shared.csproj" />
-    <ProjectReference Include="..\ArticleService.Application\ArticleService.Application.csproj" />
-    <ProjectReference Include="..\ArticleService.Contracts\ArticleService.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
