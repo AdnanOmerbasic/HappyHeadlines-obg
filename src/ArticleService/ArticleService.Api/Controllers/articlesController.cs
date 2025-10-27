@@ -40,7 +40,7 @@ namespace ArticleService.Api.Controllers
 
             await _cache.RemoveAsync($"article:{createdArticle.Continent}:{createdArticle.Id}");
 
-            return CreatedAtAction(nameof(Get), new { id = article.Id, continent = article.Continent }, createdArticle);
+            return CreatedAtAction(nameof(Get), new { id = createdArticle.Id, continent = createdArticle.Continent }, createdArticle);
         }
 
         [HttpGet]
