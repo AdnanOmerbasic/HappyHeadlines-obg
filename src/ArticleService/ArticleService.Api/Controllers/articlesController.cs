@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Prometheus;
 using Redis.Shared.Interfaces;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ArticleService.Api.Controllers
 {
@@ -40,7 +39,7 @@ namespace ArticleService.Api.Controllers
 
             await _cache.RemoveAsync($"article:{createdArticle.Continent}:{createdArticle.Id}");
 
-            return CreatedAtAction(nameof(Get), new { id = createdArticle.Id, continent = createdArticle.Continent }, createdArticle);
+            return CreatedAtAction(nameof(Get), new { id = article.Id, continent = article.Continent }, createdArticle);
         }
 
         [HttpGet]
