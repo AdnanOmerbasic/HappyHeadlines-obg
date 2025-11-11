@@ -28,7 +28,7 @@ jobs:
            run: |
             echo "Building services with version number"
             version=v${{ github.run_number }}
-            docker compose build article-service comment-service profanity-service draft-service publisher-service newsletter-service
+            docker compose build article-service comment-service profanity-service draft-service publisher-service newsletter-service subscriber-service
 
             docker tag ghcr.io/adnanomerbasic/article-service:latest ghcr.io/adnanomerbasic/article-service:$version
             docker tag ghcr.io/adnanomerbasic/comment-service:latest ghcr.io/adnanomerbasic/comment-service:$version
@@ -36,12 +36,14 @@ jobs:
             docker tag ghcr.io/adnanomerbasic/draft-service:latest ghcr.io/adnanomerbasic/draft-service:$version
             docker tag ghcr.io/adnanomerbasic/publisher-service:latest ghcr.io/adnanomerbasic/publisher-service:$version
             docker tag ghcr.io/adnanomerbasic/newsletter-service:latest ghcr.io/adnanomerbasic/newsletter-service:$version
+            docker tag ghcr.io/adnanomerbasic/subscriber-service:latest ghcr.io/adnanomerbasic/subscriber-service:$version
+
 
          - name: Deliver Services
            run: |
             echo "Delivering services with version number"
             version=v${{ github.run_number }}
-            docker compose push article-service comment-service profanity-service draft-service publisher-service newsletter-service
+            docker compose push article-service comment-service profanity-service draft-service publisher-service newsletter-service subscriber-service
 
             docker push ghcr.io/adnanomerbasic/article-service:$version
             docker push ghcr.io/adnanomerbasic/comment-service:$version
@@ -49,3 +51,4 @@ jobs:
             docker push ghcr.io/adnanomerbasic/draft-service:$version
             docker push ghcr.io/adnanomerbasic/publisher-service:$version
             docker push ghcr.io/adnanomerbasic/newsletter-service:$version
+            docker push ghcr.io/adnanomerbasic/subscriber-service:$version

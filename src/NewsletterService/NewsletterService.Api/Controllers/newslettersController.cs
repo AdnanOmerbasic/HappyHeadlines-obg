@@ -2,10 +2,12 @@
 using Events;
 using Microsoft.AspNetCore.Mvc;
 using Monitoring.Shared;
+using NewsletterService.Contracts.Responses;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
+using Polly;
+using Polly.CircuitBreaker;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace NewsletterService.Api.Controllers
 {
@@ -13,6 +15,40 @@ namespace NewsletterService.Api.Controllers
     [ApiController]
     public class newslettersController : ControllerBase
     {
+        private readonly IHttpClientFactory _httpClient;
+
+        private static readonly AsyncCircuitBreakerPolicy<HttpResponseMessage> _circuitBreakerPolicy =
+            Policy<HttpResponseMessage>.Handle<HttpRequestException>()
+            .OrResult(r => !r.IsSuccessStatusCode)
+            .CircuitBreakerAsync(2, TimeSpan.FromMinutes(1));
+
+        public newslettersController(IHttpClientFactory httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        [HttpGet]
+        [Route("subscribers")]
+        public async Task<IActionResult> GetSubscribers(CancellationToken ct)
+        {
+            var client = _httpClient.CreateClient("SubscriberService");
+            try
+            {
+                var response = await _circuitBreakerPolicy.ExecuteAsync((token) => client.GetAsync("api/subscriptions", token), ct);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)response.StatusCode, "Failed to retrieve subscribers");
+                }
+                var subscribers = await response.Content.ReadFromJsonAsync<SubscriptionsResponse>(ct);
+                return Ok(subscribers);
+            }
+            catch (BrokenCircuitException)
+            {
+                return StatusCode(503, "Subscriber service is currently unavailable. Please try again later.");
+            }
+        }
+
         [HttpPost]
         [Route("{continent}/daily")]
         public async Task<IActionResult> DailyNewsletter([FromRoute] Continent continent, [FromServices] IBus bus, CancellationToken ct)

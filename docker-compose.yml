@@ -94,6 +94,24 @@ services:
     elasticsearch:
      condition: service_healthy
 
+  featurehub:
+   image: featurehub/party-server:latest
+   ports:
+    - "8085:8085"
+   restart: always
+   volumes:
+    - featurehub-h2-data:/db
+   networks:
+    - elastic-jaeger
+
+  mailpit:
+   image: axllent/mailpit:latest
+   ports:
+    - "8025:8025"
+    - "1025:1025"
+   networks:
+    - elastic-jaeger
+
   redis:
    image: redis:latest
    ports:
@@ -351,10 +369,54 @@ services:
    environment:
     ASPNETCORE_ENVIRONMENT: "Development"
     ASPNETCORE_URLS: "http://+:80"
+    Smtp__Host: "mailpit"
+    Smtp__Port: "1025"
+    Smtp__FromEmail: "no-reply@happyheadlines.com"
+    Smtp__FromName: "HappyHeadlines"
+    Services__SubscriberApi: "http://subscriber-service:80"
    ports:
     - "8084:80"
    networks:
     - elastic-jaeger
+   depends_on:
+    mailpit:
+        condition: service_started
+    rabbitmq:
+        condition: service_healthy
+
+  subscriber-db:
+   <<: *mssql
+   ports:
+    - "1444:1433"
+   networks:
+    - elastic-jaeger
+   volumes:
+    - "subscriberdb-data:/var/opt/mssql"
+
+  subscriber-service:
+   image: ghcr.io/adnanomerbasic/subscriber-service:latest
+   build:
+    context: .
+    dockerfile: src/SubscriberService/SubscriberService.Api/Dockerfile
+    cache_from:
+     - subscriber-service:latest
+   environment:
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:80"
+    ConnectionStrings__SubscriberDb: "Server=subscriber-db;Database=SubscriberDb;User Id=sa;Password=Passw0rd!;TrustServerCertificate=True"
+    RabbitMQ: "host=rabbitmq;username=admin;password=happyheadlines"
+   ports:
+    - "8086:80"
+   networks:
+    - elastic-jaeger
+   depends_on:
+    subscriber-db:
+        condition: service_healthy
+    rabbitmq:
+        condition: service_healthy
+    featurehub:
+        condition: service_started
+    
 
 volumes:
     eudb-data: {}
@@ -373,12 +435,9 @@ volumes:
     rps_rmq_data: {}
     redis: {}
     localprom: {}
+    subscriberdb-data: {}
+    featurehub-h2-data: {}
 
 networks:
   elastic-jaeger: {}
-
-   
-
-
-  
      

@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>72fc4fe0-932f-4580-98af-e29f7b7033cc</UserSecretsId>
+    <UserSecretsId>5e74b648-6617-4a72-820d-716f0964ac31</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..</DockerfileContext>
   </PropertyGroup>
@@ -12,18 +12,20 @@
   <ItemGroup>
     <PackageReference Include="EasyNetQ" Version="7.8.0" />
     <PackageReference Include="EasyNetQ.Serialization.SystemTextJson" Version="7.8.0" />
-    <PackageReference Include="MailKit" Version="4.14.1" />
+    <PackageReference Include="FeatureHub.SDK" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="Polly" Version="8.6.4" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.8.10" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.10.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\SharedLib\Events\Events.csproj" />
-    <ProjectReference Include="..\..\SharedLib\Monitoring.Shared\Monitoring.Shared.csproj" />
-    <ProjectReference Include="..\NewsletterService.Application\NewsletterService.Application.csproj" />
-    <ProjectReference Include="..\NewsletterService.Contracts\NewsletterService.Contracts.csproj" />
+    <ProjectReference Include="..\SubscriberService.Application\SubscriberService.Application.csproj" />
+    <ProjectReference Include="..\SubscriberService.Contracts\SubscriberService.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
