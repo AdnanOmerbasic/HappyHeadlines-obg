@@ -40,6 +40,21 @@ services:
     article-service:
      condition: service_started
 
+  grafana:
+   image: grafana/grafana:latest
+   ports:
+    - "3000:3000"
+   environment:
+    GF_SECURITY_ADMIN_USER: "admin"
+    GF_SECURITY_ADMIN_PASSWORD: "happyheadlines"
+   networks:
+    - elastic-jaeger
+   depends_on:
+    prometheus:
+     condition: service_started
+   volumes:
+    - grafana-data:/var/lib/grafana
+
   rabbitmq:
    image: rabbitmq:management
    ports:
@@ -437,6 +452,7 @@ volumes:
     localprom: {}
     subscriberdb-data: {}
     featurehub-h2-data: {}
+    grafana-data: {}
 
 networks:
   elastic-jaeger: {}
